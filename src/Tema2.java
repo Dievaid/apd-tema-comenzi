@@ -15,14 +15,11 @@ public class Tema2 {
         String folderPath = new String(args[0]);
         Integer threads = Integer.parseInt(args[1]);
 
-        System.out.println(folderPath);
-        System.out.println(threads);
-
         ExecutorService service = Executors.newFixedThreadPool(threads);
         Phaser phaser = new Phaser(1);
 
-        File ordersFile = new File(folderPath + "orders.txt");
-        File productsFile = new File(folderPath + "order_products.txt");
+        File ordersFile = new File(folderPath + "/orders.txt");
+        File productsFile = new File(folderPath + "/order_products.txt");
 
         FileWriter productWriter = new FileWriter(orderProductsOutput);
         FileWriter orderWriter = new FileWriter(orderOut);

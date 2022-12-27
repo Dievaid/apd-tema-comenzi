@@ -32,9 +32,11 @@ public class OrderTask implements Runnable {
             String orderId = splStrings[0];
             Integer noProducts = Integer.parseInt(splStrings[1]);
             try {
-                Scanner scanner = new Scanner(productsFile);
-                Controller.getInstance().getPhaser().register();
-                service.submit(new ProductTask(orderId, noProducts, scanner));
+                if (noProducts != 0) {
+                    Scanner scanner = new Scanner(productsFile);
+                    Controller.getInstance().getPhaser().register();
+                    service.submit(new ProductTask(orderId, noProducts, scanner));
+                }
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
