@@ -1,21 +1,19 @@
 import java.util.Scanner;
-import java.util.concurrent.ExecutorService;
+import java.io.IOException;
 
 public class ProductTask implements Runnable {
     private final String orderId;
-    private final Integer noProducts;
     private final Scanner productScanner;
 
-    public ProductTask(String orderId, Integer noProducts, Scanner productScanner) {
+    public ProductTask(String orderId, Scanner productScanner) {
         this.orderId = orderId;
-        this.noProducts = noProducts;
         this.productScanner = productScanner;
     }
 
     @Override
     public void run() {
         Integer productCounter = 0;
-        ExecutorService service = Controller.getInstance().getExecutorService();
+        var fileWriter = Controller.getInstance().getProductWriter();
         while (productScanner.hasNextLine()) {
             String line = productScanner.nextLine();
 
@@ -26,16 +24,18 @@ public class ProductTask implements Runnable {
 
             //! Ship product
             if (currentOrderId.equals(orderId)) {
-                Controller.getInstance().getPhaser().register();
-                service.submit(new ProductWriter(orderId, currentOrderProductId));
-                productCounter++;
-            }
+                StringBuilder stringBuilder = new StringBuilder(orderId);
+                stringBuilder.append(",").append(currentOrderProductId).append(",shipped\n");
 
-            //! If the entire order was shipped
-            if (noProducts == productCounter) {
-                Controller.getInstance().getPhaser().register();
-                service.submit(new OrderWriter(orderId, productCounter));
-                break;
+                synchronized (fileWriter) {
+                    try {
+                        fileWriter.write(stringBuilder.toString());
+                    }
+                    catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                productCounter++;
             }
         }
         Controller.getInstance().getPhaser().arrive();

@@ -31,9 +31,9 @@ public class Tema2 {
 
         Scanner orderScanner = new Scanner(ordersFile);
 
-        for (int i = 0; i < threads; i++) {
+        for (int i = 0; i < threads / 2; i++) {
             phaser.register();
-            service.execute(new OrderTask(orderScanner, productsFile));
+            service.submit(new OrderTask(orderScanner, productsFile));
         }
         phaser.arriveAndDeregister();
 
