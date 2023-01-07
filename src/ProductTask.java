@@ -1,18 +1,24 @@
 import java.util.Scanner;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.io.IOException;
 
 public class ProductTask implements Runnable {
     private final String orderId;
     private final Scanner productScanner;
+    private final CyclicBarrier barrier;
+    private final AtomicInteger productNoTracker;
 
-    public ProductTask(String orderId, Scanner productScanner) {
+    public ProductTask(String orderId, Scanner productScanner, CyclicBarrier barrier, AtomicInteger productNoTracker) {
         this.orderId = orderId;
         this.productScanner = productScanner;
+        this.barrier = barrier;
+        this.productNoTracker = productNoTracker;
     }
 
     @Override
     public void run() {
-        Integer productCounter = 0;
         var fileWriter = Controller.getInstance().getProductWriter();
         while (productScanner.hasNextLine()) {
             String line = productScanner.nextLine();
@@ -35,8 +41,14 @@ public class ProductTask implements Runnable {
                         e.printStackTrace();
                     }
                 }
-                productCounter++;
+                productNoTracker.incrementAndGet();
             }
+        }
+        try {
+            barrier.await();
+        }
+        catch (InterruptedException | BrokenBarrierException e) {
+            e.printStackTrace();
         }
         Controller.getInstance().getPhaser().arrive();
     }
