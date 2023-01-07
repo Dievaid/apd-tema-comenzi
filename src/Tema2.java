@@ -15,7 +15,8 @@ public class Tema2 {
         String folderPath = new String(args[0]);
         Integer threads = Integer.parseInt(args[1]);
 
-        ExecutorService service = Executors.newFixedThreadPool(threads);
+        ExecutorService orderService = Executors.newFixedThreadPool(threads);
+        ExecutorService prodService = Executors.newFixedThreadPool(threads);
         Phaser phaser = new Phaser(1);
 
         File ordersFile = new File(folderPath + "/orders.txt");
@@ -26,27 +27,24 @@ public class Tema2 {
 
         Controller.getInstance().setOrderWriter(orderWriter);
         Controller.getInstance().setProductWriter(productWriter);
-        Controller.getInstance().setExecutorService(service);
+        Controller.getInstance().setOrderService(orderService);
+        Controller.getInstance().setProductService(prodService);
         Controller.getInstance().setPhaser(phaser);
 
         Scanner orderScanner = new Scanner(ordersFile);
 
-        for (int i = 0; i < threads / 2; i++) {
+        for (int i = 0; i < threads; i++) {
             phaser.register();
-            service.submit(new OrderTask(orderScanner, productsFile));
+            orderService.submit(new OrderTask(orderScanner, productsFile));
         }
         phaser.arriveAndDeregister();
 
         phaser.register();
-        while (!phaser.isTerminated()) {
-            phaser.arriveAndAwaitAdvance();
-            if (phaser.getPhase() == 1) {
-                break;
-            }
-        }
+        phaser.arriveAndAwaitAdvance();
 
         productWriter.close();
         orderWriter.close();
-        service.shutdown();
+        orderService.shutdown();
+        prodService.shutdown();
     }
 }

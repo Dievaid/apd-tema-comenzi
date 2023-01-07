@@ -5,7 +5,8 @@ import java.util.concurrent.Phaser;
 public class Controller {
     private FileWriter productWriter;
     private FileWriter orderWriter;
-    private ExecutorService executorService;
+    private ExecutorService productService;
+    private ExecutorService orderService;
     private Phaser phaser;
 
     private static final Controller instance = new Controller();
@@ -24,8 +25,12 @@ public class Controller {
         return productWriter;
     }
 
-    public ExecutorService getExecutorService() {
-        return executorService;
+    public ExecutorService getProductService() {
+        return productService;
+    }
+
+    public ExecutorService getOrderService() {
+        return orderService;
     }
 
     public Phaser getPhaser() {
@@ -40,8 +45,12 @@ public class Controller {
         this.productWriter = productWriter;
     }
 
-    public void setExecutorService(ExecutorService executorService) {
-        this.executorService = executorService;
+    public void setOrderService(ExecutorService orderService) {
+        this.orderService = orderService;
+    }
+
+    public void setProductService(ExecutorService productService) {
+        this.productService = productService;
     }
 
     public void setPhaser(Phaser phaser) {

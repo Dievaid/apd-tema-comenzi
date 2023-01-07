@@ -18,7 +18,7 @@ public class OrderTask implements Runnable {
     @Override
     public void run() {
         String line = null;
-        ExecutorService service = Controller.getInstance().getExecutorService();
+        ExecutorService service = Controller.getInstance().getProductService();
         FileWriter writer = Controller.getInstance().getOrderWriter();
         while (true) {
             synchronized (orderScanner) {
